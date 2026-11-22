@@ -63,16 +63,12 @@ function safeguard(x) {
   }
 
   // Refer restricted decisions to qualified personnel.
-  if (
-    RISK_REVIEW.test(riskText) &&
-    !/routine classroom safety reminders/i.test(riskText)
-  ) {
+if (RISK_REVIEW.test(riskText)) {
     return {
       action: 'HUMAN_REVIEW',
       reason: 'Sensitive clinical, restrictive or disciplinary decision'
     };
   }
-
   // Check required information.
   const absent = ['grade', 'behavior', 'desired']
     .filter(k => !x[k]);
@@ -268,8 +264,12 @@ function validateDecision(raw) {
   if (
     result.action === 'SELECT_SUPPORT' &&
     (
-      !Array.isArray(result.supports) ||
-      result.supports.length < 1
+ !Array.isArray(result.supports) ||
+result.supports.length < 2 ||
+result.supports.length > 4 ||
+result.supports.some(
+  s => typeof s !== 'string' || !s.trim()
+)
     )
   ) {
     throw new Error('No selected supports');
